@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoffReader", "CoffReader\CoffReader.csproj", "{04B9FA55-F8AD-4543-BC1A-D86FC2C71BC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffReader.Tests", "CoffReader.Tests\CoffReader.Tests.csproj", "{115036EC-AD5C-4EB4-A075-B69D43312C40}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04B9FA55-F8AD-4543-BC1A-D86FC2C71BC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04B9FA55-F8AD-4543-BC1A-D86FC2C71BC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04B9FA55-F8AD-4543-BC1A-D86FC2C71BC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04B9FA55-F8AD-4543-BC1A-D86FC2C71BC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{115036EC-AD5C-4EB4-A075-B69D43312C40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{115036EC-AD5C-4EB4-A075-B69D43312C40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{115036EC-AD5C-4EB4-A075-B69D43312C40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{115036EC-AD5C-4EB4-A075-B69D43312C40}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {19EB3A3A-6E8A-4286-972B-F9DAF0A38DC5}
+	EndGlobalSection
+EndGlobal

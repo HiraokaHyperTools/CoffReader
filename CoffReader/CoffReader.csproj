@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
+
+    <PackageId>HiraokaHyperTools.CoffReader</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>kenjiuno</Authors>
+    <Company>HiraokaHyperTools</Company>
+    <Description>Simple and limited CoffReader</Description>
+    <!-- https://spdx.org/licenses/ -->
+    <PackageLicenseExpression>BSD-2-Clause</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/HiraokaHyperTools/CoffReader</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/HiraokaHyperTools/CoffReader.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Memory" Version="4.5.5" />
+  </ItemGroup>
+</Project>

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -34,6 +33,7 @@ public class CoffParser
     public static CoffParsed Parse(ReadOnlySpan<byte> file, Encoding encoding)
     {
         var header = ReadHeader(file.Slice(0, 20));
+        var stringTab = GetStringTable(file, header);
 
         var sections = new List<CoffSection>();
         {
@@ -44,7 +44,7 @@ public class CoffParser
 
                 sections.Add(
                     new CoffSection(
-                        ReadNulTerminatedString(secTabSpan.Slice(0, 8), encoding),
+                        ReadSectionName(secTabSpan.Slice(0, 8), stringTab, encoding),
                         BitConverter.ToUInt32(secTab, 8),
                         BitConverter.ToUInt32(secTab, 12),
                         BitConverter.ToUInt32(secTab, 16),
@@ -59,7 +59,6 @@ public class CoffParser
 
         var symbols = new List<CoffSymbol>();
         {
-            var stringTab = GetStringTable(file, header);
             for (int idx = 0; idx < header.NumSymbols; idx++)
             {
                 var symTabSpan = file.Slice(Convert.ToInt32(header.SymbolTablePosition + 18 * idx), 18);
@@ -137,6 +136,26 @@ public class CoffParser
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static uint ParseUInt32(ReadOnlySpan<byte> ptr)
+    {
+        var result = 0U;
+        var length = ptr.Length;
+        for (var i = 0; i != length; ++i)
+        {
+            var b = ptr[i];
+            if (b < '0' || b > '9')
+            {
+                break;
+            }
+
+            var c = (uint) (ptr[i] - '0');
+            result = result * 10 + c;
+        }
+
+        return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static string ReadSymbolName(ReadOnlySpan<byte> name, ReadOnlySpan<byte> stringTab, Encoding encoding)
     {
         return BinaryPrimitives.ReadUInt32LittleEndian(name.Slice(0, 4)) == 0
@@ -147,4 +166,10 @@ public class CoffParser
             }
             : ReadNulTerminatedString(name, encoding);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static string ReadSectionName(ReadOnlySpan<byte> name, ReadOnlySpan<byte> stringTab, Encoding encoding) =>
+        name[0] == '/'
+            ? ReadNulTerminatedString(stringTab.Slice((int) ParseUInt32(name.Slice(1))), encoding)
+            : ReadNulTerminatedString(name, encoding);
 }

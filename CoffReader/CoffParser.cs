@@ -63,16 +63,13 @@ public class CoffParser
                     : _raw.GetString(symTab, 0, 8).Split('\0').First();
 
                 parsed.Symbols.Add(
-                    new CoffSymbol
-                    {
-                        Name = name,
-                        Value = BitConverter.ToUInt32(symTab, 8),
-                        SectionNumber = BitConverter.ToInt16(symTab, 12),
-                        SymbolType = BitConverter.ToUInt16(symTab, 14),
-                        StorageClass = symTab[16],
-                        NumAux = symTab[17],
-                    }
-                );
+                    new CoffSymbol(
+                        name,
+                        BitConverter.ToUInt32(symTab, 8),
+                        BitConverter.ToInt16(symTab, 12),
+                        BitConverter.ToUInt16(symTab, 14),
+                        symTab[16],
+                        symTab[17]));
             }
         }
 

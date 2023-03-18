@@ -1,13 +1,12 @@
-﻿namespace CoffReader;
+﻿using System.Diagnostics;
 
-public class CoffSymbol
-{
-    public string Name { get; set; }
-    public uint Value { get; set; }
-    public short SectionNumber { get; set; }
-    public ushort SymbolType { get; set; }
-    public byte StorageClass { get; set; }
-    public byte NumAux { get; internal set; }
+namespace CoffReader;
 
-    public override string ToString() => $"{Name}";
-}
+[DebuggerDisplay("{Name}")]
+public record CoffSymbol(
+    string Name,
+    uint Value,
+    short SectionNumber,
+    ushort SymbolType,
+    byte StorageClass,
+    byte NumAux);

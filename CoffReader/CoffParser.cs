@@ -12,9 +12,25 @@ namespace CoffReader;
 /// <see cref="http://delorie.com/djgpp/doc/coff/"/>
 public class CoffParser
 {
-    private static readonly Encoding _raw = Encoding.GetEncoding("latin1");
+    public static Encoding DefaultEncoding { get; set; } = Encoding.UTF8;
 
-    public static CoffParsed Parse(Span<byte> file)
+    /// <summary>
+    /// Parses the COFF file using the default encoding for strings.
+    /// </summary>
+    /// <param name="file">The file data to parse.</param>
+    /// <returns>The parsed file.</returns>
+    public static CoffParsed Parse(ReadOnlySpan<byte> file)
+    {
+        return Parse(file, DefaultEncoding);
+    }
+
+    /// <summary>
+    /// Parses the COFF file using the given encoding for strings.
+    /// </summary>
+    /// <param name="file">The file data to parse.</param>
+    /// <param name="encoding">The encoding for the strings.</param>
+    /// <returns>The parsed file.</returns>
+    public static CoffParsed Parse(ReadOnlySpan<byte> file, Encoding encoding)
     {
         var header = ReadHeader(file.Slice(0, 20));
 
@@ -26,7 +42,7 @@ public class CoffParser
 
                 sections.Add(
                     new CoffSection(
-                        _raw.GetString(secTab, 0, 8).Split('\0').First(),
+                        encoding.GetString(secTab, 0, 8).Split('\0').First(),
                         BitConverter.ToUInt32(secTab, 8),
                         BitConverter.ToUInt32(secTab, 12),
                         BitConverter.ToUInt32(secTab, 16),
@@ -43,7 +59,7 @@ public class CoffParser
         {
             var ofsStringTab = Convert.ToInt32(header.SymbolTablePosition + 18 * header.NumSymbols);
             var sizeStringTab = BitConverter.ToInt32(file.Slice(ofsStringTab, 4).ToArray(), 0);
-            var stringTab = _raw.GetString(
+            var stringTab = encoding.GetString(
                 file.Slice(ofsStringTab, Convert.ToInt32(sizeStringTab))
                     .ToArray()
             );
@@ -57,7 +73,7 @@ public class CoffParser
                         ? ""
                         : stringTab.Substring(nameRef).Split('\0').First()
                     )
-                    : _raw.GetString(symTab, 0, 8).Split('\0').First();
+                    : encoding.GetString(symTab, 0, 8).Split('\0').First();
 
                 symbols.Add(
                     new CoffSymbol(
@@ -82,6 +98,12 @@ public class CoffParser
         return parsed;
     }
 
+    /// <summary>
+    /// Returns the raw data for the given section.
+    /// </summary>
+    /// <param name="file">The COFF file.</param>
+    /// <param name="section">The section to get the data for.</param>
+    /// <returns>The section data.</returns>
     public static Span<byte> ReadRawData(Span<byte> file, CoffSection section) =>
         file.Slice(Convert.ToInt32(section.RawDataPosition), Convert.ToInt32(section.SectionSize));
 

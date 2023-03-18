@@ -36,41 +36,37 @@ public class CoffParser
         var stringTab = GetStringTable(file, header);
 
         var sections = new List<CoffSection>();
+        for (int idx = 0; idx < header.NumSections; idx++)
         {
-            for (int idx = 0; idx < header.NumSections; idx++)
-            {
-                var secTabSpan = file.Slice(Convert.ToInt32(header.SectionTablePosition + 40 * idx), 40);
-                sections.Add(
-                    new CoffSection(
-                        ReadSectionName(secTabSpan.Slice(0, 8), stringTab, encoding),
-                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(8)),
-                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(12)),
-                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(16)),
-                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(20)),
-                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(24)),
-                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(28)),
-                        BinaryPrimitives.ReadUInt16LittleEndian(secTabSpan.Slice(32)),
-                        BinaryPrimitives.ReadUInt16LittleEndian(secTabSpan.Slice(34)),
-                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(36))));
-            }
+            var secTabSpan = file.Slice(Convert.ToInt32(header.SectionTablePosition + 40 * idx), 40);
+            sections.Add(
+                new CoffSection(
+                    ReadSectionName(secTabSpan.Slice(0, 8), stringTab, encoding),
+                    BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(8)),
+                    BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(12)),
+                    BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(16)),
+                    BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(20)),
+                    BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(24)),
+                    BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(28)),
+                    BinaryPrimitives.ReadUInt16LittleEndian(secTabSpan.Slice(32)),
+                    BinaryPrimitives.ReadUInt16LittleEndian(secTabSpan.Slice(34)),
+                    BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(36))));
         }
 
         var symbols = new List<CoffSymbol>();
+        for (int idx = 0; idx < header.NumSymbols; idx++)
         {
-            for (int idx = 0; idx < header.NumSymbols; idx++)
-            {
-                var symTabSpan = file.Slice(Convert.ToInt32(header.SymbolTablePosition + 18 * idx), 18);
-                var name = ReadSymbolName(symTabSpan.Slice(0, 8), stringTab, encoding);
+            var symTabSpan = file.Slice(Convert.ToInt32(header.SymbolTablePosition + 18 * idx), 18);
+            var name = ReadSymbolName(symTabSpan.Slice(0, 8), stringTab, encoding);
 
-                symbols.Add(
-                    new CoffSymbol(
-                        name,
-                        BinaryPrimitives.ReadUInt32LittleEndian(symTabSpan.Slice(8)),
-                        BinaryPrimitives.ReadInt16LittleEndian(symTabSpan.Slice(12)),
-                        BinaryPrimitives.ReadUInt16LittleEndian(symTabSpan.Slice(14)),
-                        symTabSpan[16],
-                        symTabSpan[17]));
-            }
+            symbols.Add(
+                new CoffSymbol(
+                    name,
+                    BinaryPrimitives.ReadUInt32LittleEndian(symTabSpan.Slice(8)),
+                    BinaryPrimitives.ReadInt16LittleEndian(symTabSpan.Slice(12)),
+                    BinaryPrimitives.ReadUInt16LittleEndian(symTabSpan.Slice(14)),
+                    symTabSpan[16],
+                    symTabSpan[17]));
         }
 
         var parsed = new CoffParsed(

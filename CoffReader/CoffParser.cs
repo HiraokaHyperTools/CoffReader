@@ -40,20 +40,18 @@ public class CoffParser
             for (int idx = 0; idx < header.NumSections; idx++)
             {
                 var secTabSpan = file.Slice(Convert.ToInt32(header.SectionTablePosition + 40 * idx), 40);
-                var secTab = secTabSpan.ToArray();
-
                 sections.Add(
                     new CoffSection(
                         ReadSectionName(secTabSpan.Slice(0, 8), stringTab, encoding),
-                        BitConverter.ToUInt32(secTab, 8),
-                        BitConverter.ToUInt32(secTab, 12),
-                        BitConverter.ToUInt32(secTab, 16),
-                        BitConverter.ToUInt32(secTab, 20),
-                        BitConverter.ToUInt32(secTab, 24),
-                        BitConverter.ToUInt32(secTab, 28),
-                        BitConverter.ToUInt16(secTab, 32),
-                        BitConverter.ToUInt16(secTab, 34),
-                        BitConverter.ToUInt32(secTab, 36)));
+                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(8)),
+                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(12)),
+                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(16)),
+                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(20)),
+                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(24)),
+                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(28)),
+                        BinaryPrimitives.ReadUInt16LittleEndian(secTabSpan.Slice(32)),
+                        BinaryPrimitives.ReadUInt16LittleEndian(secTabSpan.Slice(34)),
+                        BinaryPrimitives.ReadUInt32LittleEndian(secTabSpan.Slice(36))));
             }
         }
 
@@ -62,17 +60,16 @@ public class CoffParser
             for (int idx = 0; idx < header.NumSymbols; idx++)
             {
                 var symTabSpan = file.Slice(Convert.ToInt32(header.SymbolTablePosition + 18 * idx), 18);
-                var symTab = symTabSpan.ToArray();
                 var name = ReadSymbolName(symTabSpan.Slice(0, 8), stringTab, encoding);
 
                 symbols.Add(
                     new CoffSymbol(
                         name,
-                        BitConverter.ToUInt32(symTab, 8),
-                        BitConverter.ToInt16(symTab, 12),
-                        BitConverter.ToUInt16(symTab, 14),
-                        symTab[16],
-                        symTab[17]));
+                        BinaryPrimitives.ReadUInt32LittleEndian(symTabSpan.Slice(8)),
+                        BinaryPrimitives.ReadInt16LittleEndian(symTabSpan.Slice(12)),
+                        BinaryPrimitives.ReadUInt16LittleEndian(symTabSpan.Slice(14)),
+                        symTabSpan[16],
+                        symTabSpan[17]));
             }
         }
 
@@ -97,24 +94,15 @@ public class CoffParser
     public static Span<byte> ReadRawData(Span<byte> file, CoffSection section) =>
         file.Slice(Convert.ToInt32(section.RawDataPosition), Convert.ToInt32(section.SectionSize));
 
-    private static CoffHeader ReadHeader(ReadOnlySpan<byte> header)
-    {
-        var magic = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(0, 2));
-        var nscns = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(2, 2));
-        var timdat = BinaryPrimitives.ReadUInt32LittleEndian(header.Slice(4, 4));
-        var symptr = BinaryPrimitives.ReadInt32LittleEndian(header.Slice(8, 4));
-        var nsyms = BinaryPrimitives.ReadUInt32LittleEndian(header.Slice(12, 4));
-        var opthdr = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(16, 2));
-        var flags = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(18, 2));
-        return new CoffHeader(
-            magic,
-            nscns,
-            timdat,
-            symptr,
-            nsyms,
-            opthdr,
-            flags);
-    }
+    private static CoffHeader ReadHeader(ReadOnlySpan<byte> header) =>
+        new CoffHeader(
+            BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(0, 2)),
+            BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(2, 2)),
+            BinaryPrimitives.ReadUInt32LittleEndian(header.Slice(4, 4)),
+            BinaryPrimitives.ReadInt32LittleEndian(header.Slice(8, 4)),
+            BinaryPrimitives.ReadUInt32LittleEndian(header.Slice(12, 4)),
+            BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(16, 2)),
+            BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(18, 2)));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ReadOnlySpan<byte> GetStringTable(ReadOnlySpan<byte> file, CoffHeader header)

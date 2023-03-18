@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net461;net6.0;netstandard2.0</TargetFrameworks>
 
     <PackageId>HiraokaHyperTools.CoffReader</PackageId>
     <Version>0.1.0</Version>
@@ -13,9 +13,23 @@
     <PackageProjectUrl>https://github.com/HiraokaHyperTools/CoffReader</PackageProjectUrl>
     <RepositoryUrl>https://github.com/HiraokaHyperTools/CoffReader.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Memory" Version="4.5.5" />
+    <PackageReference Include="IsExternalInit" Version="1.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Memory" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\">
+      <Link>README.md</Link>
+    </None>
   </ItemGroup>
 </Project>

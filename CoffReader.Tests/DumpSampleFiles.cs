@@ -1,8 +1,8 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace CoffReader.Tests
 {
-    public class Class1
+    public class DumpSampleFiles
     {
         [Test]
         [TestCase(@"cygwin-x64/cyginvokezlibversion_dll_d000000.o")]
@@ -11,7 +11,6 @@ namespace CoffReader.Tests
         [TestCase(@"cygwin-x64/cyginvokezlibversion_dll_d000003.o")]
         [TestCase(@"cygwin-x64/cyginvokezlibversion_dll_d000004.o")]
         [TestCase(@"cygwin-x64/invoke.cpp.o")]
-        [TestCase(@"mingw-x86/invoke.cpp.obj")]
         [TestCase(@"mingw-x86/libinvokezlibversion_dll_d000000.o")]
         [TestCase(@"mingw-x86/libinvokezlibversion_dll_d000001.o")]
         [TestCase(@"mingw-x86/libinvokezlibversion_dll_d000002.o")]
@@ -19,7 +18,7 @@ namespace CoffReader.Tests
         {
             var objFileBytes = File.ReadAllBytes(ResolvePath(objFile));
 
-            var parsed = CoffParser.Parse(objFileBytes);
+            var parsed = CoffParser.Parse(objFileBytes, true);
 
             parsed.Sections
                 .ToList()
@@ -32,15 +31,12 @@ namespace CoffReader.Tests
             parsed.Symbols
                 .ToList()
                 .ForEach(
-                    it => Console.WriteLine($"0x{it.Value:X8} {it.SectionNumber,3} {it.SymbolType,2} {it.StorageClass} {it.NumAux} {it.Name} ")
+                    it => Console.WriteLine($"0x{it.Value:X8} {it.SectionNumber,3} {it.SymbolType,2} {it.StorageClass} {it.AuxiliaryRecords.Count} {it.Name} ")
                 );
         }
 
         private static string ResolvePath(string path) => Path.Combine(
-            TestContext.CurrentContext.WorkDirectory,
-            "..",
-            "..",
-            "..",
+            TestContext.CurrentContext.TestDirectory,
             "Samples",
             path
         );

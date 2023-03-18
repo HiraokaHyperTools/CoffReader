@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
-namespace CoffReader
+namespace CoffReader;
+
+[DebuggerDisplay("{Name}")]
+public record CoffSymbol(
+    string Name,
+    uint Value,
+    short SectionNumber,
+    ushort SymbolType,
+    byte StorageClass)
 {
-    public class CoffSymbol
-    {
-        public string Name { get; set; }
-        public uint Value { get; set; }
-        public short SectionNumber { get; set; }
-        public ushort SymbolType { get; set; }
-        public byte StorageClass { get; set; }
-        public byte NumAux { get; internal set; }
+    [Obsolete("Use AuxiliaryRecords.Count instead.")]
+    public int NumAux => AuxiliaryRecords.Count;
 
-        public override string ToString() => $"{Name}";
-    }
+    /// <summary>
+    /// Gets the auxiliary records.
+    /// </summary>
+    public IReadOnlyList<byte[]> AuxiliaryRecords { get; init; } = Array.Empty<byte[]>();
 }

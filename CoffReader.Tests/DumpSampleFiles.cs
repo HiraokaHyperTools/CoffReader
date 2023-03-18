@@ -18,7 +18,7 @@ namespace CoffReader.Tests
         {
             var objFileBytes = File.ReadAllBytes(ResolvePath(objFile));
 
-            var parsed = CoffParser.Parse(objFileBytes);
+            var parsed = CoffParser.Parse(objFileBytes, true);
 
             parsed.Sections
                 .ToList()

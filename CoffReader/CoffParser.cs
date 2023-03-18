@@ -29,7 +29,18 @@ public class CoffParser
     /// <returns>The parsed file.</returns>
     public static CoffParsed Parse(ReadOnlySpan<byte> file)
     {
-        return Parse(file, DefaultEncoding);
+        return Parse(file, IsLittleEndian);
+    }
+
+    /// <summary>
+    /// Parses the COFF file using the default encoding for strings.
+    /// </summary>
+    /// <param name="file">The file data to parse.</param>
+    /// <param name="littleEndian">Parse the COFF file in little-endian format.</param>
+    /// <returns>The parsed file.</returns>
+    public static CoffParsed Parse(ReadOnlySpan<byte> file, bool littleEndian)
+    {
+        return Parse(file, DefaultEncoding, littleEndian);
     }
 
     /// <summary>
@@ -38,9 +49,19 @@ public class CoffParser
     /// <param name="file">The file data to parse.</param>
     /// <param name="encoding">The encoding for the strings.</param>
     /// <returns>The parsed file.</returns>
-    public static CoffParsed Parse(ReadOnlySpan<byte> file, Encoding encoding)
+    public static CoffParsed Parse(ReadOnlySpan<byte> file, Encoding encoding) =>
+        Parse(file, encoding, IsLittleEndian);
+
+    /// <summary>
+    /// Parses the COFF file using the given encoding for strings.
+    /// </summary>
+    /// <param name="file">The file data to parse.</param>
+    /// <param name="encoding">The encoding for the strings.</param>
+    /// <param name="littleEndian">Parse the COFF file in little-endian format.</param>
+    /// <returns>The parsed file.</returns>
+    public static CoffParsed Parse(ReadOnlySpan<byte> file, Encoding encoding, bool littleEndian)
     {
-        var (header, sections, symbols) = IsLittleEndian
+        var (header, sections, symbols) = littleEndian
             ? ParseLittleEndian(file, encoding)
             : ParseBigEndian(file, encoding);
 

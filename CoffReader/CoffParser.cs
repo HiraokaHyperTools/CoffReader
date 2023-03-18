@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Linq;
 using System.Text;
 
@@ -14,26 +15,18 @@ public class CoffParser
 
     public static CoffParsed Parse(Span<byte> file)
     {
-        var header = file.Slice(0, 20).ToArray();
-        var f_magic = BitConverter.ToUInt16(header, 0);
-        var f_nscns = BitConverter.ToUInt16(header, 2);
-        var f_timdat = BitConverter.ToUInt32(header, 4);
-        var f_symptr = BitConverter.ToUInt32(header, 8);
-        var f_nsyms = BitConverter.ToUInt32(header, 12);
-        var f_opthdr = BitConverter.ToUInt16(header, 16);
-        var f_flags = BitConverter.ToUInt16(header, 18);
-
+        var header = ReadHeader(file.Slice(0, 20));
         var parsed = new CoffParsed
         {
-            Timestamp = f_timdat,
-            Magic = f_magic,
-            Flags = f_flags,
+            Timestamp = header.Timestamp,
+            Magic = header.Magic,
+            Flags = header.Flags,
         };
 
         {
-            for (int idx = 0; idx < f_nscns; idx++)
+            for (int idx = 0; idx < header.NumSections; idx++)
             {
-                var secTab = file.Slice(Convert.ToInt32(20 + 40 * idx), 40).ToArray();
+                var secTab = file.Slice(Convert.ToInt32(header.SectionTablePosition + 40 * idx), 40).ToArray();
 
                 parsed.Sections.Add(
                     new CoffSection
@@ -54,15 +47,15 @@ public class CoffParser
         }
 
         {
-            var ofsStringTab = Convert.ToInt32(f_symptr + 18 * f_nsyms);
+            var ofsStringTab = Convert.ToInt32(header.SymbolTablePosition + 18 * header.NumSymbols);
             var sizeStringTab = BitConverter.ToInt32(file.Slice(ofsStringTab, 4).ToArray(), 0);
             var stringTab = _raw.GetString(
                 file.Slice(ofsStringTab, Convert.ToInt32(sizeStringTab))
                     .ToArray()
             );
-            for (int idx = 0; idx < f_nsyms; idx++)
+            for (int idx = 0; idx < header.NumSymbols; idx++)
             {
-                var symTab = file.Slice(Convert.ToInt32(f_symptr + 18 * idx), 18).ToArray();
+                var symTab = file.Slice(Convert.ToInt32(header.SymbolTablePosition + 18 * idx), 18).ToArray();
                 var nameIsRef = BitConverter.ToInt32(symTab, 0) == 0;
                 var nameRef = BitConverter.ToInt32(symTab, 0 + 4);
                 var name = nameIsRef
@@ -91,4 +84,23 @@ public class CoffParser
 
     public static Span<byte> ReadRawData(Span<byte> file, CoffSection section) =>
         file.Slice(Convert.ToInt32(section.RawDataPosition), Convert.ToInt32(section.SectionSize));
+
+    private static CoffHeader ReadHeader(ReadOnlySpan<byte> header)
+    {
+        var magic = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(0, 2));
+        var nscns = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(2, 2));
+        var timdat = BinaryPrimitives.ReadUInt32LittleEndian(header.Slice(4, 4));
+        var symptr = BinaryPrimitives.ReadInt32LittleEndian(header.Slice(8, 4));
+        var nsyms = BinaryPrimitives.ReadUInt32LittleEndian(header.Slice(12, 4));
+        var opthdr = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(16, 2));
+        var flags = BinaryPrimitives.ReadUInt16LittleEndian(header.Slice(18, 2));
+        return new CoffHeader(
+            magic,
+            nscns,
+            timdat,
+            symptr,
+            nsyms,
+            opthdr,
+            flags);
+    }
 }

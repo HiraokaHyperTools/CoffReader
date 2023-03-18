@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CoffReader;
 
-public class CoffParsed
+public record CoffParsed(ushort Magic, uint Timestamp, ushort Flags)
 {
-    public ushort Magic { get; set; }
-    public uint Timestamp { get; set; }
-    public ushort Flags { get; set; }
-
-    public List<CoffSymbol> Symbols { get; set; } = new List<CoffSymbol>();
-    public List<CoffSection> Sections { get; set; } = new List<CoffSection>();
+    public IReadOnlyList<CoffSymbol> Symbols { get; init; } = Array.Empty<CoffSymbol>();
+    public IReadOnlyList<CoffSection> Sections { get; init; } = Array.Empty<CoffSection>();
 
     public const ushort I386MAGIC = 0x14c;
     public const ushort AMD64MAGIC = 0x8664;

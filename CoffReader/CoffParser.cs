@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -16,19 +17,14 @@ public class CoffParser
     public static CoffParsed Parse(Span<byte> file)
     {
         var header = ReadHeader(file.Slice(0, 20));
-        var parsed = new CoffParsed
-        {
-            Timestamp = header.Timestamp,
-            Magic = header.Magic,
-            Flags = header.Flags,
-        };
 
+        var sections = new List<CoffSection>();
         {
             for (int idx = 0; idx < header.NumSections; idx++)
             {
                 var secTab = file.Slice(Convert.ToInt32(header.SectionTablePosition + 40 * idx), 40).ToArray();
 
-                parsed.Sections.Add(
+                sections.Add(
                     new CoffSection(
                         _raw.GetString(secTab, 0, 8).Split('\0').First(),
                         BitConverter.ToUInt32(secTab, 8),
@@ -43,6 +39,7 @@ public class CoffParser
             }
         }
 
+        var symbols = new List<CoffSymbol>();
         {
             var ofsStringTab = Convert.ToInt32(header.SymbolTablePosition + 18 * header.NumSymbols);
             var sizeStringTab = BitConverter.ToInt32(file.Slice(ofsStringTab, 4).ToArray(), 0);
@@ -62,7 +59,7 @@ public class CoffParser
                     )
                     : _raw.GetString(symTab, 0, 8).Split('\0').First();
 
-                parsed.Symbols.Add(
+                symbols.Add(
                     new CoffSymbol(
                         name,
                         BitConverter.ToUInt32(symTab, 8),
@@ -72,6 +69,15 @@ public class CoffParser
                         symTab[17]));
             }
         }
+
+        var parsed = new CoffParsed(
+            header.Magic,
+            header.Timestamp,
+            header.Flags)
+        {
+            Sections = sections,
+            Symbols = symbols,
+        };
 
         return parsed;
     }

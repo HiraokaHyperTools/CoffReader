@@ -9,6 +9,6 @@ internal record CoffHeader(
     ushort OptionalHeaderSize,
     ushort Flags)
 {
-    public int SectionTablePosition => 20;
+    public int SectionTablePosition => 20 + OptionalHeaderSize;
     public int StringTablePosition => (int) (SymbolTablePosition + 18 * NumSymbols);
 }

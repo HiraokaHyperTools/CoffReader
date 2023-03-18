@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace CoffReader;
 
@@ -8,5 +10,13 @@ public record CoffSymbol(
     uint Value,
     short SectionNumber,
     ushort SymbolType,
-    byte StorageClass,
-    byte NumAux);
+    byte StorageClass)
+{
+    [Obsolete("Use AuxiliaryRecords.Count instead.")]
+    public int NumAux => AuxiliaryRecords.Count;
+
+    /// <summary>
+    /// Gets the auxiliary records.
+    /// </summary>
+    public IReadOnlyList<byte[]> AuxiliaryRecords { get; init; } = Array.Empty<byte[]>();
+}

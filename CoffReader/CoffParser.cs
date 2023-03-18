@@ -54,10 +54,15 @@ public class CoffParser
         }
 
         var symbols = new List<CoffSymbol>();
+        var symTab = file.Slice(header.SymbolTablePosition, (int) (18 * header.NumSymbols));
         for (int idx = 0; idx < header.NumSymbols; idx++)
         {
-            var symTabSpan = file.Slice(Convert.ToInt32(header.SymbolTablePosition + 18 * idx), 18);
+            var symTabSpan = symTab.Slice(18 * idx, 18);
             var name = ReadSymbolName(symTabSpan.Slice(0, 8), stringTab, encoding);
+            var numAux = symTabSpan[17];
+            var auxRecords = numAux == 0
+                ? Array.Empty<byte[]>()
+                : ReadAuxiliaryRecords(symTab, idx + 1, numAux);
 
             symbols.Add(
                 new CoffSymbol(
@@ -65,8 +70,13 @@ public class CoffParser
                     BinaryPrimitives.ReadUInt32LittleEndian(symTabSpan.Slice(8)),
                     BinaryPrimitives.ReadInt16LittleEndian(symTabSpan.Slice(12)),
                     BinaryPrimitives.ReadUInt16LittleEndian(symTabSpan.Slice(14)),
-                    symTabSpan[16],
-                    symTabSpan[17]));
+                    symTabSpan[16])
+                {
+                    AuxiliaryRecords = auxRecords,
+                });
+
+            // Skip the auxiliary records.
+            idx += numAux;
         }
 
         var parsed = new CoffParsed(
@@ -156,4 +166,18 @@ public class CoffParser
         name[0] == '/'
             ? ReadNulTerminatedString(stringTab.Slice((int) ParseUInt32(name.Slice(1))), encoding)
             : ReadNulTerminatedString(name, encoding);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static IReadOnlyList<byte[]> ReadAuxiliaryRecords(ReadOnlySpan<byte> symTab, int startIndex, int count)
+    {
+        var result = new List<byte[]>(count);
+        var endIndex = startIndex + count;
+        for (var i = startIndex; i != endIndex; ++i)
+        {
+            var auxRecord = symTab.Slice(i * 18, 18);
+            result.Add(auxRecord.ToArray());
+        }
+
+        return result;
+    }
 }

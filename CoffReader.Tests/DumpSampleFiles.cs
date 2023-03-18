@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace CoffReader.Tests
 {
@@ -31,7 +31,7 @@ namespace CoffReader.Tests
             parsed.Symbols
                 .ToList()
                 .ForEach(
-                    it => Console.WriteLine($"0x{it.Value:X8} {it.SectionNumber,3} {it.SymbolType,2} {it.StorageClass} {it.NumAux} {it.Name} ")
+                    it => Console.WriteLine($"0x{it.Value:X8} {it.SectionNumber,3} {it.SymbolType,2} {it.StorageClass} {it.AuxiliaryRecords.Count} {it.Name} ")
                 );
         }
 

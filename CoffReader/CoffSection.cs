@@ -1,17 +1,16 @@
-﻿namespace CoffReader;
+﻿using System.Diagnostics;
 
-public class CoffSection
-{
-    public string Name { get; set; }
-    public uint PhysicalAddress { get; set; }
-    public uint VirtualAddress { get; set; }
-    public uint SectionSize { get; set; }
-    public uint RawDataPosition { get; set; }
-    public uint RelocationPosition { get; set; }
-    public uint LineNumberPosition { get; set; }
-    public ushort NumRelocations { get; set; }
-    public ushort NumLineNumbers { get; set; }
-    public uint Flags { get; set; }
+namespace CoffReader;
 
-    public override string ToString() => $"{Name}";
-}
+[DebuggerDisplay("{Name}")]
+public record CoffSection(
+    string Name,
+    uint PhysicalAddress,
+    uint VirtualAddress,
+    uint SectionSize,
+    uint RawDataPosition,
+    uint RelocationPosition,
+    uint LineNumberPosition,
+    ushort NumRelocations,
+    ushort NumLineNumbers,
+    uint Flags);

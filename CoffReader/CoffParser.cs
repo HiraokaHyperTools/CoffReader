@@ -29,20 +29,17 @@ public class CoffParser
                 var secTab = file.Slice(Convert.ToInt32(header.SectionTablePosition + 40 * idx), 40).ToArray();
 
                 parsed.Sections.Add(
-                    new CoffSection
-                    {
-                        Name = _raw.GetString(secTab, 0, 8).Split('\0').First(),
-                        PhysicalAddress = BitConverter.ToUInt32(secTab, 8),
-                        VirtualAddress = BitConverter.ToUInt32(secTab, 12),
-                        SectionSize = BitConverter.ToUInt32(secTab, 16),
-                        RawDataPosition = BitConverter.ToUInt32(secTab, 20),
-                        RelocationPosition = BitConverter.ToUInt32(secTab, 24),
-                        LineNumberPosition = BitConverter.ToUInt32(secTab, 28),
-                        NumRelocations = BitConverter.ToUInt16(secTab, 32),
-                        NumLineNumbers = BitConverter.ToUInt16(secTab, 34),
-                        Flags = BitConverter.ToUInt32(secTab, 36),
-                    }
-                );
+                    new CoffSection(
+                        _raw.GetString(secTab, 0, 8).Split('\0').First(),
+                        BitConverter.ToUInt32(secTab, 8),
+                        BitConverter.ToUInt32(secTab, 12),
+                        BitConverter.ToUInt32(secTab, 16),
+                        BitConverter.ToUInt32(secTab, 20),
+                        BitConverter.ToUInt32(secTab, 24),
+                        BitConverter.ToUInt32(secTab, 28),
+                        BitConverter.ToUInt16(secTab, 32),
+                        BitConverter.ToUInt16(secTab, 34),
+                        BitConverter.ToUInt32(secTab, 36)));
             }
         }
 
